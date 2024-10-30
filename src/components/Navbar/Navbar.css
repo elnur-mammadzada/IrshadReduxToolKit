@@ -1,0 +1,62 @@
+/* Ümumi navbar konteyneri */
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 40px;
+  background-color: #ffffff;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Loqo üçün stil */
+.navbar-image img {
+  width: 120px;
+  height: auto;
+  cursor: pointer;
+  transition: transform 0.3s ease;
+}
+
+.navbar-image img:hover {
+  transform: scale(1.1);
+}
+
+/* Linklərin yerləşməsi */
+.navbar-wrapper {
+  display: flex;
+}
+
+.navbar-list {
+  list-style: none;
+  display: flex;
+  gap: 30px;
+}
+
+/* Navbar elementlərinin üslubu */
+.navbar-item a {
+  text-decoration: none;
+  font-size: 18px;
+  font-weight: 300;
+  color: rgb(56, 62, 76);
+  transition: color 0.3s ease;
+  position: relative;
+  font-family: Inter, sans-serif;
+}
+
+.navbar-item a::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: -5px;
+  width: 0;
+  height: 2px;
+  background-color: rgb(255, 138, 17);
+  transition: width 0.3s ease;
+}
+
+.navbar-item a:hover::after {
+  width: 100%;
+}
+
+.navbar-item a:hover {
+  color: rgb(56, 62, 76);
+}
