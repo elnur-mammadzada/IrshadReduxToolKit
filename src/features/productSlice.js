@@ -12,15 +12,16 @@ export const fetchProductItems = createAsyncThunk("fetchProducts", async () => {
 
 export const addProducts = createAsyncThunk(
   "addProducts",
-  async (newProduct) => {
+  async (newProduct, thunkApi) => {
     try {
       const res = await axios.post(
         "https://66fcde2bc3a184a84d1834e8.mockapi.io/api/users/products",
         newProduct
       );
+      thunkApi.dispatch(fetchProductItems());
       return res.data;
     } catch (error) {
-      return error.message;
+      return thunkApi.rejectWithValue();
     }
   }
 );
