@@ -4,6 +4,7 @@ import {
   closeSnackbar,
   deleteProducts,
   fetchProductItems,
+  getUserById,
 } from "../../features/productSlice";
 import "../Products/Products.css";
 import {
@@ -19,21 +20,29 @@ import {
 } from "@mui/material";
 import MUIDialog from "../../components/Dialog/MUIDialog";
 import { useNavigate, useParams } from "react-router-dom";
+import UpdateProduct from "./UpdatePage/UpdatePage";
 
 const Products = () => {
   const navigate = useNavigate();
+  const [openDialog, setOpenDialog] = useState(false);
+  const [updateDialog, setUpdateDialog] = useState(false);
+  const [productData, setProductData] = useState();
+
+  const dispatch = useDispatch();
 
   const handleClose = () => {
     dispatch(closeSnackbar());
   };
-  const dispatch = useDispatch();
+
   const {
-    product: { products, isSnackbarOpen, snackbarMessage },
+    product: { userById, products, isSnackbarOpen, snackbarMessage },
   } = useSelector((state) => state);
 
   const handleCardClick = (id) => {
-    navigate(`/products/${id}`); 
+    navigate(`/products/${id}`);
   };
+
+  useEffect(() => {}, [userById]);
 
   useEffect(() => {
     dispatch(fetchProductItems());
@@ -42,9 +51,21 @@ const Products = () => {
   const handleDelete = (id) => {
     dispatch(deleteProducts(id));
   };
+
+  const handleUpdate = (id) => {
+    dispatch(getUserById(id));
+    setUpdateDialog(true);
+  };
+  const handleCloseDialog = () => {
+    setOpenDialog(false);
+  };
+
+  const handleUpdateDialog = () => {
+    setUpdateDialog(false);
+  };
   return (
     <div>
-      <MUIDialog />
+      <MUIDialog open={openDialog} onClose={handleCloseDialog} />
       <Box sx={{ flexGrow: 1 }}>
         <Grid2 container spacing={2}>
           {products.map(({ id, name, price, description, imageUrl }) => {
@@ -77,8 +98,18 @@ const Products = () => {
                       {price}
                     </Typography>
                   </CardContent>
+
                   <CardActions
-                    sx={{ display: "flex", justifyContent: "flex-end" }}>
+                    sx={{ display: "flex", justifyContent: "space-between" }}>
+                    <Button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleUpdate(id);
+                      }}
+                      color='success'
+                      size='small'>
+                      Düzəliş et
+                    </Button>
                     <Button
                       onClick={(e) => {
                         e.stopPropagation();
@@ -101,6 +132,7 @@ const Products = () => {
         autoHideDuration={1000}
         message={snackbarMessage}
       />
+      <UpdateProduct open={updateDialog} onClose={handleUpdateDialog} />
     </div>
   );
 };

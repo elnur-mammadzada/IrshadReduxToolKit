@@ -1,53 +1,57 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import TextField from "@mui/material/TextField";
 import Dialog from "@mui/material/Dialog";
 import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
 import DialogTitle from "@mui/material/DialogTitle";
-import MUIButton from "../Button/MUIButton";
 import { Button } from "@mui/material";
-import { addProducts } from "../../features/productSlice";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { Controller, useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { validationSchema } from "../../schema/addSchema";
+import { validationSchema } from "../../../schema/addSchema";
+import { updateProducts } from "../../../features/productSlice";
 
-const MUIDialog = () => {
+const UpdateProduct = ({ open, onClose }) => {
   const dispatch = useDispatch();
-  const [open, setOpen] = useState(false);
+
+  const {
+    product: { userById },
+  } = useSelector((state) => state);
 
   const {
     control,
     handleSubmit,
+    setValue,
     reset,
     formState: { errors },
   } = useForm({
     resolver: yupResolver(validationSchema),
   });
-
-  const handleClickOpen = () => {
-    setOpen(true);
-  };
-  const handleClose = () => {
-    setOpen(false);
-  };
+  useEffect(() => {
+    if (userById) {
+      setValue("name", userById.name);
+      setValue("price", userById.price);
+      setValue("description", userById.description);
+      setValue("imageUrl", userById.imageUrl);
+    }
+  }, [userById, setValue]);
 
   const onSubmit = (data) => {
-    dispatch(addProducts(data));
-    reset();
-    handleClose();
+    dispatch(
+      updateProducts({
+        id: userById.id,
+        ...data,
+      })
+    );
+    onClose();
+    console.log(data);
   };
+
   return (
     <div>
-      <MUIButton
-        variant='contained'
-        text='YARAT'
-        color='success'
-        onClick={handleClickOpen}
-      />
       <Dialog
         open={open}
-        onClose={handleClose}
+        onClose={onClose}
         PaperProps={{
           component: "form",
           onSubmit: handleSubmit(onSubmit),
@@ -120,12 +124,11 @@ const MUIDialog = () => {
           {errors.price && <p>{errors.price.message}</p>}
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleClose}>Ləğv et</Button>
-          <Button type='submit'>Əlavə et</Button>
+          <Button type='submit'> Düzəliş et</Button>
+          <Button onClick={onClose}> Ləğv et</Button>
         </DialogActions>
       </Dialog>
     </div>
   );
 };
-
-export default MUIDialog;
+export default UpdateProduct;

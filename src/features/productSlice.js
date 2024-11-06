@@ -1,6 +1,5 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import axios from "axios";
-import { TbRuler2Off } from "react-icons/tb";
 
 export const fetchProductItems = createAsyncThunk("fetchProducts", async () => {
   const response = await axios.get(
@@ -26,27 +25,50 @@ export const addProducts = createAsyncThunk(
   }
 );
 
-export const deleteProducts = createAsyncThunk("deleteProducts", async (id) => {
-  try {
-    const res = await axios.delete(
-      `https://66fcde2bc3a184a84d1834e8.mockapi.io/api/users/products/${id}`
-    );
-    return id;
-  } catch (error) {
-    return error.message;
+export const deleteProducts = createAsyncThunk(
+  "deleteProducts",
+  async (id, thunkApi) => {
+    try {
+      await axios.delete(
+        `https://66fcde2bc3a184a84d1834e8.mockapi.io/api/users/products/${id}`
+      );
+      thunkApi.dispatch(fetchProductItems());
+
+      return id;
+    } catch (error) {
+      return error.message;
+    }
   }
-});
+);
 export const getUserById = createAsyncThunk("getUserByid", async (id) => {
   try {
     const res = await axios.get(
       `https://66fcde2bc3a184a84d1834e8.mockapi.io/api/users/products/${id}`
     );
+
     const data = res.data;
     return data;
   } catch (error) {
     return error.message;
   }
 });
+export const updateProducts = createAsyncThunk(
+  "updateProducts",
+  async ({ id, ...updatedProduct }, thunkApi) => {
+    console.log(id);
+    try {
+      await axios.put(
+        `https://66fcde2bc3a184a84d1834e8.mockapi.io/api/users/products/${id}`,
+        updatedProduct
+      );
+
+      thunkApi.dispatch(fetchProductItems());
+      return { id, updatedProduct };
+    } catch (error) {
+      return error.message;
+    }
+  }
+);
 
 export const productSlice = createSlice({
   name: "product",
@@ -95,9 +117,6 @@ export const productSlice = createSlice({
     // DELETE
     builder
       .addCase(deleteProducts.fulfilled, (state, action) => {
-        state.products = state.products.filter(
-          (product) => product.id !== action.payload
-        );
         state.isSnackbarOpen = true;
         state.snackbarMessage = `Məhsul silindi:  ${action.payload}`;
       })
@@ -114,6 +133,15 @@ export const productSlice = createSlice({
       .addCase(getUserById.rejected, (state, action) => {
         state.error = action.payload?.message;
         state.isLoading = false;
+      });
+    //Update
+    builder
+      .addCase(updateProducts.fulfilled, (state, action) => {
+        state.isSnackbarOpen = true;
+        state.snackbarMessage = `Düzəliş olundu:  ${action.payload.name}`;
+      })
+      .addCase(updateProducts.rejected, (state, action) => {
+        state.products = action.payload?.message;
       });
   },
 });
